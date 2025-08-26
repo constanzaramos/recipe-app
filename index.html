@@ -3,7 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gourmetia</title>
+    <title>Gourmetia - Delicious Recipes</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍳</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css" />
     <link
       rel="stylesheet"
@@ -14,28 +18,191 @@
     />
   </head>
   <body>
-    <nav>
-      <form class="input-container">
-        <input type="text" class="input" placeholder="Search..." />
-        <i class="fa-solid fa-magnifying-glass magnifier"></i>
-      </form>
-      <ul>
-        <li>Breakfast</li>
-        <li>Lunch</li>
-        <li>Dinner</li>
-        <li>Snacks</li>
-      </ul>
-    </nav>
-    <main>
-      <div class="container">
-        <div class="img"></div>
-        <div class="content-container">
-          <h1 class="title">Food Name</h1>
-          <p class="info"></p>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-container">
+        <div class="logo">
+          <i class="fa-solid fa-utensils logo-icon"></i>
+          <h1>Gourmetia</h1>
+        </div>
+        <nav class="main-nav">
+          <ul>
+            <li><a href="#home" class="nav-link active" data-section="home">Home</a></li>
+            <li><a href="#recipes" class="nav-link" data-section="recipes">Recipes</a></li>
+            <li><a href="#categories" class="nav-link" data-section="categories">Categories</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+      <div class="hero-container">
+        <div class="hero-content">
+          <h1 class="hero-title">Discover Delicious Recipes</h1>
+          <p class="hero-subtitle">Find the perfect recipe for any occasion.</p>
+          <!-- Search Section -->
+          <div class="search-section">
+            <div class="search-container">
+              <form class="search-form">
+                <div class="search-input-group">
+                  <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                  <input type="text" class="search-input" placeholder="Search by ingredients (e.g., chicken, garlic, onion)..." />
+                  <button type="submit" class="search-btn">
+                    <i class="fa-solid fa-search"></i>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Quick Filters -->
+          <div class="quick-filters">
+            <div class="filter-group">
+              <label>Quick Search:</label>
+              <div class="alphabet-filter">
+                <button type="button" class="letter-btn" data-letter="A">A</button>
+                <button type="button" class="letter-btn" data-letter="B">B</button>
+                <button type="button" class="letter-btn" data-letter="C">C</button>
+                <button type="button" class="letter-btn" data-letter="D">D</button>
+                <button type="button" class="letter-btn" data-letter="E">E</button>
+                <button type="button" class="letter-btn" data-letter="F">F</button>
+                <button type="button" class="letter-btn" data-letter="G">G</button>
+                <button type="button" class="letter-btn" data-letter="H">H</button>
+                <button type="button" class="letter-btn" data-letter="I">I</button>
+                <button type="button" class="letter-btn" data-letter="J">J</button>
+                <button type="button" class="letter-btn" data-letter="K">K</button>
+                <button type="button" class="letter-btn" data-letter="L">L</button>
+                <button type="button" class="letter-btn" data-letter="M">M</button>
+                <button type="button" class="letter-btn" data-letter="N">N</button>
+                <button type="button" class="letter-btn" data-letter="O">O</button>
+                <button type="button" class="letter-btn" data-letter="P">P</button>
+                <button type="button" class="letter-btn" data-letter="Q">Q</button>
+                <button type="button" class="letter-btn" data-letter="R">R</button>
+                <button type="button" class="letter-btn" data-letter="S">S</button>
+                <button type="button" class="letter-btn" data-letter="T">T</button>
+                <button type="button" class="letter-btn" data-letter="U">U</button>
+                <button type="button" class="letter-btn" data-letter="V">V</button>
+                <button type="button" class="letter-btn" data-letter="W">W</button>
+                <button type="button" class="letter-btn" data-letter="X">X</button>
+                <button type="button" class="letter-btn" data-letter="Y">Y</button>
+                <button type="button" class="letter-btn" data-letter="Z">Z</button>
+              </div>
+            </div>
+            
+            <div class="advanced-filters">
+              <div class="filter-row">
+                <div class="filter-item">
+                  <label for="categoryFilter">Category:</label>
+                  <select id="categoryFilter" class="filter-dropdown">
+                    <option value="">All Categories</option>
+                  </select>
+                </div>
+                
+                <div class="filter-item">
+                  <label for="areaFilter">Cuisine:</label>
+                  <select id="areaFilter" class="filter-dropdown">
+                    <option value="">All Cuisines</option>
+                  </select>
+                </div>
+                
+                <div class="filter-item">
+                  <button type="button" id="searchFiltersBtn" class="search-filters-btn">
+                    <i class="fa-solid fa-search"></i> Search
+                  </button>
+                </div>
+                
+                <div class="filter-item">
+                  <button type="button" id="clearFilters" class="clear-filters-btn">
+                    <i class="fa-solid fa-times"></i> Clear All
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </main>
-    <section class="ingredients"></section>
+    </section>
+
+    <!-- Popular Categories Section -->
+    <section id="categories" class="popular-categories">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Popular Categories</h2>
+          <p class="section-subtitle">Explore our most loved recipe categories</p>
+        </div>
+        
+        <div class="categories-grid" id="categoriesGrid">
+          <!-- Categories will be dynamically loaded here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Recipe Section -->
+    <section class="featured-recipe">
+      <div class="container">
+        <div class="recipe-showcase">
+          <div class="recipe-header">
+            <div class="recipe-image">
+              <div class="img" id="mainRecipeImage"></div>
+              <div class="recipe-badge">
+                <span class="badge-text">Featured Recipe</span>
+              </div>
+            </div>
+            
+            <div class="recipe-details">
+              <h2 class="recipe-title" id="mainRecipeTitle">Discover Your Perfect Recipe</h2>
+              <div class="recipe-meta">
+                <span class="meta-item">
+                  <i class="fa-solid fa-clock"></i>
+                  <span id="recipeTime">30 min</span>
+                </span>
+                <span class="meta-item">
+                  <i class="fa-solid fa-star"></i>
+                  <span id="recipeRating">4.8</span>
+                </span>
+                <span class="meta-item">
+                  <i class="fa-solid fa-users"></i>
+                  <span id="recipeServings">4 servings</span>
+                </span>
+              </div>
+              
+              <!-- Ingredients Section -->
+              <div class="recipe-section">
+                <h3 class="section-title">
+                  <i class="fa-solid fa-list"></i> Ingredients
+                </h3>
+                <div class="ingredients-list" id="ingredientsList"></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Instructions Section -->
+          <div class="recipe-section instructions-section">
+            <h3 class="section-title">
+              <i class="fa-solid fa-utensils"></i> Instructions
+            </h3>
+            <div class="instructions-content" id="preparationInfo"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="recipes" class="results-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Search Results</h2>
+          <p class="section-subtitle">Find your next favorite recipe</p>
+        </div>
+        
+        <div class="results-grid" id="resultsGrid">
+          <!-- Recipe cards will be dynamically added here -->
+        </div>
+      </div>
+    </section>
+
+
     <script src="app.js"></script>
   </body>
 </html>
