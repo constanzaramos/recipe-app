@@ -3,11 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gourmetia - Delicious Recipes</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍳</text></svg>" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <meta
+      name="description"
+      content="Discover delicious recipes from around the world with Gourmetia's powerful search engine. Find recipes by ingredients, cuisine, or category."
+    />
+    <meta
+      name="keywords"
+      content="recipes, cooking, food, ingredients, cuisine, meal planning"
+    />
+    <meta name="author" content="Gourmetia" />
+
+    <title>Gourmetia — Find Your Next Favorite Recipe</title>
+
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍳</text></svg>"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
     <link rel="stylesheet" href="style.css" />
     <link
       rel="stylesheet"
@@ -18,205 +40,278 @@
     />
   </head>
   <body>
-    <!-- Header -->
-    <header class="header">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <header class="header" role="banner">
       <div class="header-container">
         <div class="logo">
-          <i class="fa-solid fa-utensils logo-icon"></i>
+          <i class="fa-solid fa-utensils logo-icon" aria-hidden="true"></i>
           <h1>Gourmetia</h1>
         </div>
-        <nav class="main-nav">
+
+        <nav class="main-nav" role="navigation" aria-label="Primary navigation">
           <ul>
-            <li><a href="#home" class="nav-link active" data-section="home">Home</a></li>
-            <li><a href="#recipes" class="nav-link" data-section="recipes">Recipes</a></li>
-            <li><a href="#categories" class="nav-link" data-section="categories">Categories</a></li>
+            <li>
+              <a href="#home" class="nav-link active" data-section="home"
+                >Home</a
+              >
+            </li>
+            <li>
+              <a href="#recipes" class="nav-link" data-section="recipes"
+                >Recipes</a
+              >
+            </li>
+            <li>
+              <a href="#categories" class="nav-link" data-section="categories"
+                >Categories</a
+              >
+            </li>
           </ul>
         </nav>
       </div>
     </header>
 
-    <!-- Loading Spinner -->
-    <div id="loadingSpinner" class="loading-spinner">
-        <div class="chef-hat">
-            <i class="fa-solid fa-hat-chef"></i>
-        </div>
-        <p class="loading-text">Cocinando recetas...</p>
+    <div
+      id="loadingSpinner"
+      class="loading-spinner"
+      role="status"
+      aria-live="polite"
+      aria-label="Loading recipes"
+    >
+      <div class="chef-hat">
+        <i class="fa-solid fa-hat-chef" aria-hidden="true"></i>
+      </div>
+      <p class="loading-text">Simmering recipes…</p>
     </div>
 
-    <!-- Hero Section -->
-    <section id="home" class="hero">
-      <div class="hero-container">
-        <div class="hero-content">
-          <h1 class="hero-title">Discover Delicious Recipes</h1>
-          <p class="hero-subtitle">Find the perfect recipe for any occasion.</p>
-          <!-- Search Section -->
-          <div class="search-section">
-            <div class="search-container">
-              <form class="search-form">
+    <main id="main-content">
+      <section id="home" class="hero">
+        <div class="hero-container">
+          <div class="hero-content">
+            <header class="hero-header">
+              <h2 class="hero-title">
+                Discover irresistible recipes in seconds
+              </h2>
+              <p class="hero-subtitle">
+                Cook something amazing today—by craving, ingredient, or cuisine.
+              </p>
+            </header>
+
+            <div class="search-section" role="search">
+              <form
+                class="search-form"
+                aria-label="Search recipes by ingredients"
+              >
                 <div class="search-input-group">
-                  <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                  <input type="text" class="search-input" placeholder="Search by ingredients (e.g., chicken, garlic, onion)..." />
-                  <button type="submit" class="search-btn">
-                    <i class="fa-solid fa-search"></i>
+                  <i
+                    class="fa-solid fa-magnifying-glass search-icon"
+                    aria-hidden="true"
+                  ></i>
+                  <input
+                    type="text"
+                    class="search-input"
+                    placeholder="Search by ingredient (e.g., chicken, garlic, onion)…"
+                    aria-label="Search by ingredient"
+                    required
+                  />
+                  <button
+                    type="submit"
+                    class="search-btn"
+                    aria-label="Search recipes"
+                  >
+                    <i class="fa-solid fa-search" aria-hidden="true"></i>
                   </button>
                 </div>
               </form>
             </div>
-          </div>
 
-          <!-- Quick Filters -->
-          <div class="quick-filters">
-            <div class="filter-group">
-              <label>Quick Search:</label>
-              <div class="alphabet-filter">
-                <button type="button" class="letter-btn" data-letter="A">A</button>
-                <button type="button" class="letter-btn" data-letter="B">B</button>
-                <button type="button" class="letter-btn" data-letter="C">C</button>
-                <button type="button" class="letter-btn" data-letter="D">D</button>
-                <button type="button" class="letter-btn" data-letter="E">E</button>
-                <button type="button" class="letter-btn" data-letter="F">F</button>
-                <button type="button" class="letter-btn" data-letter="G">G</button>
-                <button type="button" class="letter-btn" data-letter="H">H</button>
-                <button type="button" class="letter-btn" data-letter="I">I</button>
-                <button type="button" class="letter-btn" data-letter="J">J</button>
-                <button type="button" class="letter-btn" data-letter="K">K</button>
-                <button type="button" class="letter-btn" data-letter="L">L</button>
-                <button type="button" class="letter-btn" data-letter="M">M</button>
-                <button type="button" class="letter-btn" data-letter="N">N</button>
-                <button type="button" class="letter-btn" data-letter="O">O</button>
-                <button type="button" class="letter-btn" data-letter="P">P</button>
-                <button type="button" class="letter-btn" data-letter="Q">Q</button>
-                <button type="button" class="letter-btn" data-letter="R">R</button>
-                <button type="button" class="letter-btn" data-letter="S">S</button>
-                <button type="button" class="letter-btn" data-letter="T">T</button>
-                <button type="button" class="letter-btn" data-letter="U">U</button>
-                <button type="button" class="letter-btn" data-letter="V">V</button>
-                <button type="button" class="letter-btn" data-letter="W">W</button>
-                <button type="button" class="letter-btn" data-letter="X">X</button>
-                <button type="button" class="letter-btn" data-letter="Y">Y</button>
-                <button type="button" class="letter-btn" data-letter="Z">Z</button>
-              </div>
-            </div>
-            
-            <div class="advanced-filters">
-              <div class="filter-row">
-                <div class="filter-item">
-                  <label for="categoryFilter">Category:</label>
-                  <select id="categoryFilter" class="filter-dropdown">
-                    <option value="">All Categories</option>
-                  </select>
+            <div class="quick-filters">
+              <fieldset class="filter-group" aria-label="Browse alphabetically">
+                <legend class="filter-label">Browse A–Z:</legend>
+                <div
+                  class="alphabet-filter"
+                  role="group"
+                  aria-label="Letter buttons"
+                ></div>
+              </fieldset>
+
+              <fieldset class="advanced-filters" aria-label="Advanced filters">
+                <legend class="sr-only">Advanced search filters</legend>
+                <div class="filter-row">
+                  <div class="filter-item">
+                    <label for="categoryFilter">Category</label>
+                    <select
+                      id="categoryFilter"
+                      class="filter-dropdown"
+                      aria-label="Filter by category"
+                    >
+                      <option value="">All categories</option>
+                    </select>
+                  </div>
+
+                  <div class="filter-item">
+                    <label for="areaFilter">Cuisine</label>
+                    <select
+                      id="areaFilter"
+                      class="filter-dropdown"
+                      aria-label="Filter by cuisine"
+                    >
+                      <option value="">All cuisines</option>
+                    </select>
+                  </div>
+
+                  <div class="filter-item">
+                    <button
+                      type="button"
+                      id="searchFiltersBtn"
+                      class="search-filters-btn"
+                      aria-label="Apply filters"
+                    >
+                      <i class="fa-solid fa-search" aria-hidden="true"></i> Find
+                      recipes
+                    </button>
+                  </div>
+
+                  <div class="filter-item">
+                    <button
+                      type="button"
+                      id="clearFilters"
+                      class="clear-filters-btn"
+                      aria-label="Clear all filters"
+                    >
+                      <i class="fa-solid fa-times" aria-hidden="true"></i> Reset
+                      filters
+                    </button>
+                  </div>
                 </div>
-                
-                <div class="filter-item">
-                  <label for="areaFilter">Cuisine:</label>
-                  <select id="areaFilter" class="filter-dropdown">
-                    <option value="">All Cuisines</option>
-                  </select>
-                </div>
-                
-                <div class="filter-item">
-                  <button type="button" id="searchFiltersBtn" class="search-filters-btn">
-                    <i class="fa-solid fa-search"></i> Search
-                  </button>
-                </div>
-                
-                <div class="filter-item">
-                  <button type="button" id="clearFilters" class="clear-filters-btn">
-                    <i class="fa-solid fa-times"></i> Clear All
-                  </button>
-                </div>
-              </div>
+              </fieldset>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Popular Categories Section -->
-    <section id="categories" class="popular-categories">
+      <section id="categories" class="popular-categories">
+        <div class="container">
+          <header class="section-header">
+            <h2 class="section-title">Popular categories</h2>
+            <p class="section-subtitle">Explore the most-loved ways to cook</p>
+          </header>
+
+          <div
+            class="categories-grid"
+            id="categoriesGrid"
+            aria-live="polite"
+            aria-label="Recipe categories"
+          ></div>
+        </div>
+      </section>
+
+      <section class="featured-recipe" aria-label="Featured recipe">
+        <div class="container">
+          <article class="recipe-showcase">
+            <header class="recipe-header">
+              <figure class="recipe-image">
+                <div
+                  class="img"
+                  id="mainRecipeImage"
+                  role="img"
+                  aria-label="Featured recipe image"
+                ></div>
+                <figcaption class="recipe-badge">
+                  <span class="badge-text">Featured recipe</span>
+                </figcaption>
+              </figure>
+
+              <div class="recipe-details">
+                <h2 class="recipe-title" id="mainRecipeTitle">
+                  Your next go-to dish
+                </h2>
+
+                <dl class="recipe-meta" aria-label="Recipe details">
+                  <div class="meta-item">
+                    <dt>
+                      <i class="fa-solid fa-clock" aria-hidden="true"></i>
+                    </dt>
+                    <dd id="recipeTime">30 min</dd>
+                  </div>
+                  <div class="meta-item">
+                    <dt><i class="fa-solid fa-star" aria-hidden="true"></i></dt>
+                    <dd id="recipeRating">4.8</dd>
+                  </div>
+                  <div class="meta-item">
+                    <dt>
+                      <i class="fa-solid fa-users" aria-hidden="true"></i>
+                    </dt>
+                    <dd id="recipeServings">4 servings</dd>
+                  </div>
+                  <div class="meta-item">
+                    <dt>
+                      <i class="fa-solid fa-utensils" aria-hidden="true"></i>
+                    </dt>
+                    <dd id="recipeCategory">Category</dd>
+                  </div>
+                  <div class="meta-item">
+                    <dt>
+                      <i class="fa-solid fa-globe" aria-hidden="true"></i>
+                    </dt>
+                    <dd id="recipeArea">Cuisine</dd>
+                  </div>
+                </dl>
+
+                <section class="recipe-section">
+                  <h3 class="section-title">
+                    <i class="fa-solid fa-list" aria-hidden="true"></i> What
+                    you'll need
+                  </h3>
+                  <div
+                    class="ingredients-list"
+                    id="ingredientsList"
+                    aria-label="Recipe ingredients"
+                  ></div>
+                </section>
+              </div>
+            </header>
+
+            <section class="recipe-section instructions-section">
+              <h3 class="section-title">
+                <i class="fa-solid fa-utensils" aria-hidden="true"></i> How to
+                make it
+              </h3>
+              <div
+                class="instructions-content"
+                id="preparationInfo"
+                aria-label="Cooking instructions"
+              ></div>
+            </section>
+          </article>
+        </div>
+      </section>
+
+      <section id="recipes" class="results-section">
+        <div class="container">
+          <header class="section-header">
+            <h2 class="section-title">Search results</h2>
+            <p class="section-subtitle">Find your next favorite recipe</p>
+          </header>
+
+          <div
+            class="results-grid"
+            id="resultsGrid"
+            aria-live="polite"
+            aria-label="Recipe search results"
+          ></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer" role="contentinfo">
       <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">Popular Categories</h2>
-          <p class="section-subtitle">Explore our most loved recipe categories</p>
-        </div>
-        
-        <div class="categories-grid" id="categoriesGrid">
-          <!-- Categories will be dynamically loaded here -->
-        </div>
+        <p>
+          &copy; 2024 Gourmetia. Made with
+          <i class="fa-solid fa-heart" aria-hidden="true"></i> for food lovers.
+        </p>
       </div>
-    </section>
-
-    <!-- Featured Recipe Section -->
-    <section class="featured-recipe">
-      <div class="container">
-        <div class="recipe-showcase">
-          <div class="recipe-header">
-            <div class="recipe-image">
-              <div class="img" id="mainRecipeImage"></div>
-              <div class="recipe-badge">
-                <span class="badge-text">Featured Recipe</span>
-              </div>
-            </div>
-            
-            <div class="recipe-details">
-              <h2 class="recipe-title" id="mainRecipeTitle">Discover Your Perfect Recipe</h2>
-              <div class="recipe-meta">
-                <span class="meta-item">
-                  <i class="fa-solid fa-clock"></i>
-                  <span id="recipeTime">30 min</span>
-                </span>
-                <span class="meta-item">
-                  <i class="fa-solid fa-star"></i>
-                  <span id="recipeRating">4.8</span>
-                </span>
-                <span class="meta-item">
-                  <i class="fa-solid fa-users"></i>
-                  <span id="recipeServings">4 servings</span>
-                </span>
-                <span class="meta-item">
-                  <i class="fa-solid fa-utensils"></i>
-                  <span id="recipeCategory">Category</span>
-                </span>
-                <span class="meta-item" data-area="true">
-                  <i class="fa-solid fa-globe"></i>
-                  <span id="recipeArea">Cuisine</span>
-                </span>
-              </div>
-              
-              <!-- Ingredients Section -->
-              <div class="recipe-section">
-                <h3 class="section-title">
-                  <i class="fa-solid fa-list"></i> Ingredients
-                </h3>
-                <div class="ingredients-list" id="ingredientsList"></div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Instructions Section -->
-          <div class="recipe-section instructions-section">
-            <h3 class="section-title">
-              <i class="fa-solid fa-utensils"></i> Instructions
-            </h3>
-            <div class="instructions-content" id="preparationInfo"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Results Section -->
-    <section id="recipes" class="results-section">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">Search Results</h2>
-          <p class="section-subtitle">Find your next favorite recipe</p>
-        </div>
-        
-        <div class="results-grid" id="resultsGrid">
-          <!-- Recipe cards will be dynamically added here -->
-        </div>
-      </div>
-    </section>
+    </footer>
 
     <script src="app.js"></script>
   </body>
