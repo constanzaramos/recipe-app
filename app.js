@@ -29,7 +29,8 @@ class DOMElements {
             areaFilter: document.getElementById("areaFilter"),
             clearFiltersBtn: document.getElementById("clearFilters"),
             searchFiltersBtn: document.getElementById("searchFiltersBtn"),
-            navLinks: document.querySelectorAll(".nav-link")
+            navLinks: document.querySelectorAll(".nav-link"),
+            loadingSpinner: document.getElementById("loadingSpinner")
         };
 
         this.validateElements();
@@ -43,6 +44,58 @@ class DOMElements {
             console.error("Missing required DOM elements:", missingElements);
             throw new Error("Required DOM elements not found");
         }
+    }
+}
+
+// Loading Manager - Single Responsibility Principle
+class LoadingManager {
+    static show() {
+        if (DOMElements.elements.loadingSpinner) {
+            DOMElements.elements.loadingSpinner.classList.add('show');
+        }
+    }
+
+    static hide() {
+        if (DOMElements.elements.loadingSpinner) {
+            DOMElements.elements.loadingSpinner.classList.remove('show');
+        }
+    }
+
+    static async withLoading(callback) {
+        try {
+            this.show();
+            await callback();
+        } finally {
+            this.hide();
+        }
+    }
+}
+
+// Recipe Card Creator - Single Responsibility Principle
+class RecipeCardCreator {
+    static createRecipeCard(meal) {
+        const card = document.createElement("div");
+        card.className = "recipe-card";
+        card.innerHTML = `
+            <img src="${meal.strMealThumb}" alt="${meal.strMeal}" />
+            <div class="recipe-card-content">
+                <h3>${meal.strMeal}</h3>
+                <p class="category">${meal.strCategory || 'Category not available'}</p>
+                <p>${meal.strArea || 'Cuisine not available'}</p>
+            </div>
+        `;
+        
+        card.addEventListener("click", () => {
+            // Mostrar la receta en la sección principal
+            UIManager.showMealInfo(meal);
+            
+            // Hacer scroll hacia la sección de receta destacada
+            document.querySelector('.featured-recipe').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        });
+        
+        return card;
     }
 }
 
@@ -162,11 +215,29 @@ class RecipeDataManager {
 // UI Manager - Single Responsibility Principle
 class UIManager {
     static showMealInfo(meal) {
-        const { strMeal, strMealThumb, strInstructions } = meal;
+        const { strMeal, strMealThumb, strInstructions, strCategory, strArea } = meal;
         const elements = DOMElements.elements;
         
+        // Actualizar título de la receta
         elements.title.textContent = strMeal;
+        
+        // Actualizar imagen de la receta
         elements.img.style.backgroundImage = `url(${strMealThumb})`;
+        
+        // Actualizar metadatos si están disponibles
+        if (strCategory) {
+            const categoryElement = document.getElementById('recipeCategory');
+            if (categoryElement) {
+                categoryElement.textContent = strCategory;
+            }
+        }
+        
+        if (strArea) {
+            const areaElement = document.getElementById('recipeArea');
+            if (areaElement) {
+                areaElement.textContent = strArea;
+            }
+        }
         
         // Process instructions with bullet points
         const instructions = RecipeDataManager.processInstructions(strInstructions);
@@ -195,22 +266,7 @@ class UIManager {
     }
 
     static createRecipeCard(meal) {
-        const card = document.createElement("div");
-        card.className = "recipe-card";
-        card.innerHTML = `
-            <img src="${meal.strMealThumb}" alt="${meal.strMeal}" />
-            <div class="recipe-card-content">
-                <h3>${meal.strMeal}</h3>
-                <p class="category">${meal.strCategory || 'Category not available'}</p>
-                <p>${meal.strArea || 'Cuisine not available'}</p>
-            </div>
-        `;
-        
-        card.addEventListener("click", () => {
-            RecipeSearchManager.showMealDetails(meal.idMeal);
-        });
-        
-        return card;
+        return RecipeCardCreator.createRecipeCard(meal);
     }
 
     static showMultipleResults(meals) {
@@ -370,51 +426,53 @@ class FilterManager {
             // Crear cards para cada categoría
             for (const category of popularCategories) {
                 try {
-                    // Obtener una receta aleatoria de la categoría
-                    const response = await APIService.searchByCategory(category.name);
-                    const data = response.meals;
-                    
-                    let imageUrl = "https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=556,505";
-                    let recipeCount = 0;
-                    
-                    if (data && data.length > 0) {
-                        // Tomar una receta aleatoria de la categoría
-                        const randomIndex = Math.floor(Math.random() * Math.min(data.length, 10));
-                        const randomMeal = data[randomIndex];
-                        imageUrl = randomMeal.strMealThumb;
-                        recipeCount = data.length;
-                    }
-
-                    // Crear la card de categoría
-                    const categoryCard = document.createElement("div");
-                    categoryCard.className = "category-card";
-                    categoryCard.innerHTML = `
-                        <div class="category-image" style="background-image: url('${imageUrl}')"></div>
-                        <div class="category-info">
-                            <i class="${category.icon}" style="color: ${category.color}"></i>
-                            <h3 class="category-name">${category.name}</h3>
-                            <p class="category-count">${recipeCount} recipes</p>
-                        </div>
-                    `;
-
-                    // Agregar evento click para buscar por categoría
-                    categoryCard.addEventListener("click", () => {
-                        // Limpiar otros filtros
-                        DOMElements.elements.letterButtons.forEach(btn => btn.classList.remove('active'));
-                        DOMElements.elements.categoryFilter.value = category.name;
-                        DOMElements.elements.areaFilter.value = "";
-                        DOMElements.elements.input.value = "";
+                    await LoadingManager.withLoading(async () => {
+                        // Obtener una receta aleatoria de la categoría
+                        const response = await APIService.searchByCategory(category.name);
+                        const data = response.meals;
                         
-                        // Buscar por categoría
-                        FilterManager.searchByCategory(category.name);
+                        let imageUrl = "https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=556,505";
+                        let recipeCount = 0;
                         
-                        // Scroll hacia los resultados
-                        document.querySelector('.results-section').scrollIntoView({ 
-                            behavior: 'smooth' 
+                        if (data && data.length > 0) {
+                            // Tomar una receta aleatoria de la categoría
+                            const randomIndex = Math.floor(Math.random() * Math.min(data.length, 10));
+                            const randomMeal = data[randomIndex];
+                            imageUrl = randomMeal.strMealThumb;
+                            recipeCount = data.length;
+                        }
+
+                        // Crear la card de categoría
+                        const categoryCard = document.createElement("div");
+                        categoryCard.className = "category-card";
+                        categoryCard.innerHTML = `
+                            <div class="category-image" style="background-image: url('${imageUrl}')"></div>
+                            <div class="category-info">
+                                <i class="${category.icon}" style="color: ${category.color}"></i>
+                                <h3 class="category-name">${category.name}</h3>
+                                <p class="category-count">${recipeCount} recipes</p>
+                            </div>
+                        `;
+
+                        // Agregar evento click para buscar por categoría
+                        categoryCard.addEventListener("click", () => {
+                            // Limpiar otros filtros
+                            DOMElements.elements.letterButtons.forEach(btn => btn.classList.remove('active'));
+                            DOMElements.elements.categoryFilter.value = category.name;
+                            DOMElements.elements.areaFilter.value = "";
+                            DOMElements.elements.input.value = "";
+                            
+                            // Buscar por categoría
+                            FilterManager.searchByCategory(category.name);
+                            
+                            // Scroll hacia los resultados
+                            document.querySelector('.results-section').scrollIntoView({ 
+                                behavior: 'smooth' 
+                            });
                         });
-                    });
 
-                    categoriesGrid.appendChild(categoryCard);
+                        categoriesGrid.appendChild(categoryCard);
+                    });
 
                 } catch (error) {
                     console.warn(`Error cargando categoría ${category.name}:`, error);
@@ -458,22 +516,21 @@ class FilterManager {
         try {
             console.log("Buscando por categoría:", category);
             
-            // Mostrar loading
-            DOMElements.elements.resultsGrid.innerHTML = '<div class="loading">Buscando recetas por categoría...</div>';
-            
-            const data = await APIService.searchByCategory(category);
-            console.log("Resultados por categoría:", data);
-            
-            if (data.meals && data.meals.length > 0) {
-                console.log(`Encontradas ${data.meals.length} recetas para la categoría: ${category}`);
-                // Obtener detalles completos de las recetas
-                const detailedMeals = await RecipeDataManager.getDetailedMeals(data.meals);
-                console.log("Recetas con detalles completos:", detailedMeals);
-                FilterManager.showMultipleResults(detailedMeals);
-            } else {
-                console.log(`No se encontraron recetas para la categoría: ${category}`);
-                FilterManager.showMultipleResults([]);
-            }
+            await LoadingManager.withLoading(async () => {
+                const data = await APIService.searchByCategory(category);
+                console.log("Resultados por categoría:", data);
+                
+                if (data.meals && data.meals.length > 0) {
+                    console.log(`Encontradas ${data.meals.length} recetas para la categoría: ${category}`);
+                    // Obtener detalles completos de las recetas
+                    const detailedMeals = await RecipeDataManager.getDetailedMeals(data.meals);
+                    console.log("Recetas con detalles completos:", detailedMeals);
+                    FilterManager.showMultipleResults(detailedMeals);
+                } else {
+                    console.log(`No se encontraron recetas para la categoría: ${category}`);
+                    FilterManager.showMultipleResults([]);
+                }
+            });
             
         } catch (error) {
             console.error("Error buscando por categoría:", error);
@@ -487,16 +544,18 @@ class FilterManager {
         try {
             console.log("Buscando por área:", area);
             
-            const response = await APIService.searchByArea(area);
-            console.log("Resultados por área:", response);
-            
-            if (response.meals) {
-                // Obtener detalles completos de las recetas
-                const detailedMeals = await RecipeDataManager.getDetailedMeals(response.meals);
-                FilterManager.showMultipleResults(detailedMeals);
-            } else {
-                FilterManager.showMultipleResults([]);
-            }
+            await LoadingManager.withLoading(async () => {
+                const response = await APIService.searchByArea(area);
+                console.log("Resultados por área:", response);
+                
+                if (response.meals) {
+                    // Obtener detalles completos de las recetas
+                    const detailedMeals = await RecipeDataManager.getDetailedMeals(response.meals);
+                    FilterManager.showMultipleResults(detailedMeals);
+                } else {
+                    FilterManager.showMultipleResults([]);
+                }
+            });
             
         } catch (error) {
             console.error("Error buscando por área:", error);
@@ -508,14 +567,16 @@ class FilterManager {
         try {
             console.log("Buscando por letra:", letter);
             
-            const data = await APIService.searchByLetter(letter);
-            console.log("Resultados por letra:", data);
-            
-            if (data.meals) {
-                FilterManager.showMultipleResults(data.meals);
-            } else {
-                FilterManager.showMultipleResults([]);
-            }
+            await LoadingManager.withLoading(async () => {
+                const data = await APIService.searchByLetter(letter);
+                console.log("Resultados por letra:", data);
+                
+                if (data.meals) {
+                    FilterManager.showMultipleResults(data.meals);
+                } else {
+                    FilterManager.showMultipleResults([]);
+                }
+            });
             
         } catch (error) {
             console.error("Error buscando por letra:", error);
@@ -528,97 +589,99 @@ class FilterManager {
         console.log("Buscando ingredientes:", ingredientList);
         
         try {
-            // Intentar primero con API premium (multi-ingrediente)
-            let data = null;
-            let usedPremium = false;
-            
-            try {
-                console.log("Intentando con API premium...");
-                const ingredientsParam = ingredientList.join(',');
-                const response = await APIService.searchByIngredients(ingredientsParam);
+            await LoadingManager.withLoading(async () => {
+                // Intentar primero con API premium (multi-ingrediente)
+                let data = null;
+                let usedPremium = false;
                 
-                if (response.ok) {
-                    data = response.meals;
-                    usedPremium = true;
-                    console.log("API premium exitosa:", data);
-                } else {
-                    throw new Error(`Premium API failed: ${response.status}`);
-                }
-            } catch (premiumError) {
-                console.log("API premium falló, usando método alternativo:", premiumError.message);
-                usedPremium = false;
-                
-                // Método alternativo: buscar por primer ingrediente y filtrar manualmente
-                const firstIngredient = ingredientList[0];
-                console.log("Buscando por primer ingrediente:", firstIngredient);
-                
-                const response = await APIService.searchByIngredients(firstIngredient);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                data = response.meals;
-                console.log("Respuesta de API pública:", data);
-            }
-            
-            if (!data) {
-                FilterManager.showMultipleResults([]);
-                return;
-            }
-            
-            // Obtener detalles completos de las recetas
-            const detailedMeals = [];
-            
-            for (const meal of data) {
                 try {
-                    // Obtener detalles completos de la receta
-                    const mealDetailsResponse = await APIService.getMealDetails(meal.idMeal);
+                    console.log("Intentando con API premium...");
+                    const ingredientsParam = ingredientList.join(',');
+                    const response = await APIService.searchByIngredients(ingredientsParam);
                     
-                    if (!mealDetailsResponse.ok) {
-                        console.warn(`Error al obtener detalles de receta ${meal.idMeal}`);
-                        continue;
+                    if (response.ok) {
+                        data = response.meals;
+                        usedPremium = true;
+                        console.log("API premium exitosa:", data);
+                    } else {
+                        throw new Error(`Premium API failed: ${response.status}`);
+                    }
+                } catch (premiumError) {
+                    console.log("API premium falló, usando método alternativo:", premiumError.message);
+                    usedPremium = false;
+                    
+                    // Método alternativo: buscar por primer ingrediente y filtrar manualmente
+                    const firstIngredient = ingredientList[0];
+                    console.log("Buscando por primer ingrediente:", firstIngredient);
+                    
+                    const response = await APIService.searchByIngredients(firstIngredient);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     
-                    const mealDetails = await mealDetailsResponse.json();
-                    
-                    if (mealDetails.meals && mealDetails.meals[0]) {
-                        const mealData = mealDetails.meals[0];
+                    data = response.meals;
+                    console.log("Respuesta de API pública:", data);
+                }
+                
+                if (!data) {
+                    FilterManager.showMultipleResults([]);
+                    return;
+                }
+                
+                // Obtener detalles completos de las recetas
+                const detailedMeals = [];
+                
+                for (const meal of data) {
+                    try {
+                        // Obtener detalles completos de la receta
+                        const mealDetailsResponse = await APIService.getMealDetails(meal.idMeal);
                         
-                        // Si no usamos API premium, filtrar manualmente por ingredientes
-                        if (!usedPremium) {
-                            const mealIngredients = [];
+                        if (!mealDetailsResponse.ok) {
+                            console.warn(`Error al obtener detalles de receta ${meal.idMeal}`);
+                            continue;
+                        }
+                        
+                        const mealDetails = await mealDetailsResponse.json();
+                        
+                        if (mealDetails.meals && mealDetails.meals[0]) {
+                            const mealData = mealDetails.meals[0];
                             
-                            // Extraer ingredientes de la receta
-                            for (let i = 1; i <= 20; i++) {
-                                if (mealData[`strIngredient${i}`]) {
-                                    mealIngredients.push(mealData[`strIngredient${i}`].toLowerCase());
+                            // Si no usamos API premium, filtrar manualmente por ingredientes
+                            if (!usedPremium) {
+                                const mealIngredients = [];
+                                
+                                // Extraer ingredientes de la receta
+                                for (let i = 1; i <= 20; i++) {
+                                    if (mealData[`strIngredient${i}`]) {
+                                        mealIngredients.push(mealData[`strIngredient${i}`].toLowerCase());
+                                    }
                                 }
-                            }
-                            
-                            // Verificar si la receta contiene todos los ingredientes buscados
-                            const containsAllIngredients = ingredientList.every(ingredient => 
-                                mealIngredients.some(mealIngredient => 
-                                    mealIngredient.includes(ingredient) || ingredient.includes(mealIngredient)
-                                )
-                            );
-                            
-                            if (containsAllIngredients) {
+                                
+                                // Verificar si la receta contiene todos los ingredientes buscados
+                                const containsAllIngredients = ingredientList.every(ingredient => 
+                                    mealIngredients.some(mealIngredient => 
+                                        mealIngredient.includes(ingredient) || ingredient.includes(mealIngredient)
+                                    )
+                                );
+                                
+                                if (containsAllIngredients) {
+                                    detailedMeals.push(mealData);
+                                }
+                            } else {
+                                // Si usamos API premium, agregar directamente
                                 detailedMeals.push(mealData);
                             }
-                        } else {
-                            // Si usamos API premium, agregar directamente
-                            detailedMeals.push(mealData);
                         }
+                    } catch (error) {
+                        console.warn(`Error al procesar receta ${meal.idMeal}:`, error);
+                        continue;
                     }
-                } catch (error) {
-                    console.warn(`Error al procesar receta ${meal.idMeal}:`, error);
-                    continue;
                 }
-            }
-            
-            console.log("Recetas con detalles completos:", detailedMeals);
-            FilterManager.showMultipleResults(detailedMeals);
+                
+                console.log("Recetas con detalles completos:", detailedMeals);
+                FilterManager.showMultipleResults(detailedMeals);
+            });
             
         } catch (error) {
             console.error("Error searching by ingredients:", error);
@@ -637,9 +700,6 @@ class FilterManager {
             alert("Por favor ingresa ingredientes para buscar");
             return;
         }
-        
-        // Mostrar loading
-        DOMElements.elements.resultsGrid.innerHTML = '<div class="loading">Buscando recetas...</div>';
         
         // Buscar por múltiples ingredientes
         await FilterManager.searchByMultipleIngredients(val);
@@ -751,14 +811,16 @@ class FilterManager {
         try {
             console.log("Buscando por letra:", letter);
             
-            const data = await APIService.searchByLetter(letter);
-            console.log("Resultados por letra:", data);
-            
-            if (data.meals) {
-                FilterManager.showMultipleResults(data.meals);
-            } else {
-                FilterManager.showMultipleResults([]);
-            }
+            await LoadingManager.withLoading(async () => {
+                const data = await APIService.searchByLetter(letter);
+                console.log("Resultados por letra:", data);
+                
+                if (data.meals) {
+                    FilterManager.showMultipleResults(data.meals);
+                } else {
+                    FilterManager.showMultipleResults([]);
+                }
+            });
             
         } catch (error) {
             console.error("Error buscando por letra:", error);
@@ -823,20 +885,21 @@ class SearchManager {
         
         try {
             console.log("Searching by category:", category);
-            DOMElements.elements.resultsGrid.innerHTML = '<div class="loading">Searching recipes by category...</div>';
             
-            const data = await APIService.searchByCategory(category);
-            console.log("Category results:", data);
-            
-            if (data.meals && data.meals.length > 0) {
-                console.log(`Found ${data.meals.length} recipes for category: ${category}`);
-                const detailedMeals = await RecipeDataManager.getDetailedMeals(data.meals);
-                console.log("Recipes with complete details:", detailedMeals);
-                UIManager.showMultipleResults(detailedMeals);
-            } else {
-                console.log(`No recipes found for category: ${category}`);
-                UIManager.showMultipleResults([]);
-            }
+            await LoadingManager.withLoading(async () => {
+                const data = await APIService.searchByCategory(category);
+                console.log("Category results:", data);
+                
+                if (data.meals && data.meals.length > 0) {
+                    console.log(`Found ${data.meals.length} recipes for category: ${category}`);
+                    const detailedMeals = await RecipeDataManager.getDetailedMeals(data.meals);
+                    console.log("Recipes with complete details:", detailedMeals);
+                    UIManager.showMultipleResults(detailedMeals);
+                } else {
+                    console.log(`No recipes found for category: ${category}`);
+                    UIManager.showMultipleResults([]);
+                }
+            });
             
         } catch (error) {
             console.error("Error searching by category:", error);
@@ -849,19 +912,20 @@ class SearchManager {
         
         try {
             console.log("Searching by area:", area);
-            DOMElements.elements.resultsGrid.innerHTML = '<div class="loading">Searching recipes by cuisine...</div>';
             
-            const data = await APIService.searchByArea(area);
-            console.log("Area results:", data);
-            
-            if (data.meals && data.meals.length > 0) {
-                console.log(`Found ${data.meals.length} recipes for area: ${area}`);
-                const detailedMeals = await RecipeDataManager.getDetailedMeals(data.meals);
-                UIManager.showMultipleResults(detailedMeals);
-            } else {
-                console.log(`No recipes found for area: ${area}`);
-                UIManager.showMultipleResults([]);
-            }
+            await LoadingManager.withLoading(async () => {
+                const data = await APIService.searchByArea(area);
+                console.log("Area results:", data);
+                
+                if (data.meals && data.meals.length > 0) {
+                    console.log(`Found ${data.meals.length} recipes for area: ${area}`);
+                    const detailedMeals = await RecipeDataManager.getDetailedMeals(data.meals);
+                    UIManager.showMultipleResults(detailedMeals);
+                } else {
+                    console.log(`No recipes found for area: ${area}`);
+                    UIManager.showMultipleResults([]);
+                }
+            });
             
         } catch (error) {
             console.error("Error searching by area:", error);
@@ -894,71 +958,71 @@ class SearchManager {
         console.log("Searching ingredients:", ingredientList);
         
         try {
-            DOMElements.elements.resultsGrid.innerHTML = '<div class="loading">Searching recipes...</div>';
-            
-            let data = null;
-            let usedPremium = false;
-            
-            try {
-                console.log("Trying premium API...");
-                const ingredientsParam = ingredientList.join(',');
-                data = await APIService.searchByIngredients(ingredientsParam);
-                usedPremium = true;
-                console.log("Premium API successful:", data);
-            } catch (premiumError) {
-                console.log("Premium API failed, using alternative method:", premiumError.message);
-                usedPremium = false;
+            await LoadingManager.withLoading(async () => {
+                let data = null;
+                let usedPremium = false;
                 
-                const firstIngredient = ingredientList[0];
-                console.log("Searching by first ingredient:", firstIngredient);
-                data = await APIService.searchByIngredients(firstIngredient);
-                console.log("Public API response:", data);
-            }
-            
-            if (!data.meals) {
-                UIManager.showMultipleResults([]);
-                return;
-            }
-            
-            const detailedMeals = [];
-            
-            for (const meal of data.meals) {
                 try {
-                    const mealDetails = await APIService.getMealDetails(meal.idMeal);
+                    console.log("Trying premium API...");
+                    const ingredientsParam = ingredientList.join(',');
+                    data = await APIService.searchByIngredients(ingredientsParam);
+                    usedPremium = true;
+                    console.log("Premium API successful:", data);
+                } catch (premiumError) {
+                    console.log("Premium API failed, using alternative method:", premiumError.message);
+                    usedPremium = false;
                     
-                    if (mealDetails.meals && mealDetails.meals[0]) {
-                        const mealData = mealDetails.meals[0];
+                    const firstIngredient = ingredientList[0];
+                    console.log("Searching by first ingredient:", firstIngredient);
+                    data = await APIService.searchByIngredients(firstIngredient);
+                    console.log("Public API response:", data);
+                }
+                
+                if (!data.meals) {
+                    UIManager.showMultipleResults([]);
+                    return;
+                }
+                
+                const detailedMeals = [];
+                
+                for (const meal of data.meals) {
+                    try {
+                        const mealDetails = await APIService.getMealDetails(meal.idMeal);
                         
-                        if (!usedPremium) {
-                            const mealIngredients = [];
+                        if (mealDetails.meals && mealDetails.meals[0]) {
+                            const mealData = mealDetails.meals[0];
                             
-                            for (let i = 1; i <= 20; i++) {
-                                if (mealData[`strIngredient${i}`]) {
-                                    mealIngredients.push(mealData[`strIngredient${i}`].toLowerCase());
+                            if (!usedPremium) {
+                                const mealIngredients = [];
+                                
+                                for (let i = 1; i <= 20; i++) {
+                                    if (mealData[`strIngredient${i}`]) {
+                                        mealIngredients.push(mealData[`strIngredient${i}`].toLowerCase());
+                                    }
                                 }
-                            }
-                            
-                            const containsAllIngredients = ingredientList.every(ingredient => 
-                                mealIngredients.some(mealIngredient => 
-                                    mealIngredient.includes(ingredient) || ingredient.includes(mealIngredient)
-                                )
-                            );
-                            
-                            if (containsAllIngredients) {
+                                
+                                const containsAllIngredients = ingredientList.every(ingredient => 
+                                    mealIngredients.some(mealIngredient => 
+                                        mealIngredient.includes(ingredient) || ingredient.includes(mealIngredient)
+                                    )
+                                );
+                                
+                                if (containsAllIngredients) {
+                                    detailedMeals.push(mealData);
+                                }
+                            } else {
                                 detailedMeals.push(mealData);
                             }
-                        } else {
-                            detailedMeals.push(mealData);
                         }
+                    } catch (error) {
+                        console.warn(`Error processing recipe ${meal.idMeal}:`, error);
+                        continue;
                     }
-                } catch (error) {
-                    console.warn(`Error processing recipe ${meal.idMeal}:`, error);
-                    continue;
                 }
-            }
-            
-            console.log("Recipes with complete details:", detailedMeals);
-            UIManager.showMultipleResults(detailedMeals);
+                
+                console.log("Recipes with complete details:", detailedMeals);
+                UIManager.showMultipleResults(detailedMeals);
+            });
             
         } catch (error) {
             console.error("Error searching by ingredients:", error);
@@ -1044,20 +1108,22 @@ class CategoryManager {
 
             for (const category of popularCategories) {
                 try {
-                    const data = await APIService.searchByCategory(category.name);
-                    
-                    let imageUrl = "https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=556,505";
-                    let recipeCount = 0;
-                    
-                    if (data.meals && data.meals.length > 0) {
-                        const randomIndex = Math.floor(Math.random() * Math.min(data.meals.length, 10));
-                        const randomMeal = data.meals[randomIndex];
-                        imageUrl = randomMeal.strMealThumb;
-                        recipeCount = data.meals.length;
-                    }
+                    await LoadingManager.withLoading(async () => {
+                        const data = await APIService.searchByCategory(category.name);
+                        
+                        let imageUrl = "https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=556,505";
+                        let recipeCount = 0;
+                        
+                        if (data.meals && data.meals.length > 0) {
+                            const randomIndex = Math.floor(Math.random() * Math.min(data.meals.length, 10));
+                            const randomMeal = data.meals[randomIndex];
+                            imageUrl = randomMeal.strMealThumb;
+                            recipeCount = data.meals.length;
+                        }
 
-                    const categoryCard = this.createCategoryCard(category, imageUrl, recipeCount);
-                    categoriesGrid.appendChild(categoryCard);
+                        const categoryCard = this.createCategoryCard(category, imageUrl, recipeCount);
+                        categoriesGrid.appendChild(categoryCard);
+                    });
 
                 } catch (error) {
                     console.warn(`Error loading category ${category.name}:`, error);
@@ -1100,29 +1166,31 @@ class CategoryManager {
 
     static async loadFilterOptions() {
         try {
-            const categoriesData = await APIService.getCategories();
-            
-            if (categoriesData.categories) {
-                categoriesData.categories.forEach(category => {
-                    const option = document.createElement("option");
-                    option.value = category.strCategory;
-                    option.textContent = category.strCategory;
-                    DOMElements.elements.categoryFilter.appendChild(option);
-                });
-            }
+            await LoadingManager.withLoading(async () => {
+                const categoriesData = await APIService.getCategories();
+                
+                if (categoriesData.categories) {
+                    categoriesData.categories.forEach(category => {
+                        const option = document.createElement("option");
+                        option.value = category.strCategory;
+                        option.textContent = category.strCategory;
+                        DOMElements.elements.categoryFilter.appendChild(option);
+                    });
+                }
 
-            const areasData = await APIService.getAreas();
-            
-            if (areasData.meals) {
-                areasData.meals.forEach(area => {
-                    const option = document.createElement("option");
-                    option.value = area.strArea;
-                    option.textContent = area.strArea;
-                    DOMElements.elements.areaFilter.appendChild(option);
-                });
-            }
+                const areasData = await APIService.getAreas();
+                
+                if (areasData.meals) {
+                    areasData.meals.forEach(area => {
+                        const option = document.createElement("option");
+                        option.value = area.strArea;
+                        option.textContent = area.strArea;
+                        DOMElements.elements.areaFilter.appendChild(option);
+                    });
+                }
 
-            console.log("Filters loaded successfully");
+                console.log("Filters loaded successfully");
+            });
         } catch (error) {
             console.error("Error loading filters:", error);
         }

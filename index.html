@@ -35,6 +35,14 @@
       </div>
     </header>
 
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="chef-hat">
+            <i class="fa-solid fa-hat-chef"></i>
+        </div>
+        <p class="loading-text">Cocinando recetas...</p>
+    </div>
+
     <!-- Hero Section -->
     <section id="home" class="hero">
       <div class="hero-container">
@@ -165,6 +173,14 @@
                   <i class="fa-solid fa-users"></i>
                   <span id="recipeServings">4 servings</span>
                 </span>
+                <span class="meta-item">
+                  <i class="fa-solid fa-utensils"></i>
+                  <span id="recipeCategory">Category</span>
+                </span>
+                <span class="meta-item" data-area="true">
+                  <i class="fa-solid fa-globe"></i>
+                  <span id="recipeArea">Cuisine</span>
+                </span>
               </div>
               
               <!-- Ingredients Section -->
@@ -201,7 +217,6 @@
         </div>
       </div>
     </section>
-
 
     <script src="app.js"></script>
   </body>
