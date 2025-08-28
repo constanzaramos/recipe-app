@@ -1,7 +1,7 @@
 # 🍳 Gourmetia - Recipe Search Application
 
 
-A modern, responsive recipe search application built with vanilla JavaScript, HTML5, and CSS3. Discover delicious recipes from around the world with our powerful search engine.
+A modern, responsive recipe search application built with vanilla JavaScript, HTML5, and CSS3. 
 
 ![Gourmetia Preview](https://img.shields.io/badge/Status-Live-brightgreen)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow)
@@ -40,7 +40,6 @@ A modern, responsive recipe search application built with vanilla JavaScript, HT
 
 **🌐 [View Live Demo](https://recipe-app-kappa-six-89.vercel.app/)**
 
-*Experience the full functionality of Gourmetia with our live demo!*
 
 ## 🛠️ Technologies Used
 
@@ -57,9 +56,6 @@ A modern, responsive recipe search application built with vanilla JavaScript, HT
 2. **Open** `index.html` in your web browser
 3. **Start using** the application immediately
 
-```bash
-php -S localhost:8000
-```
 
 
 ## 🎯 How to Use
@@ -94,5 +90,5 @@ php -S localhost:8000
 
 
 
-**Made with ❤️ by [Constanza Ramos]**
+**Made with ❤️ by Constanza Ramos**
 
